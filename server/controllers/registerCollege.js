@@ -80,3 +80,33 @@ export const getCollegesByUsername = async (req, res) => {
       .json({ success: false, message: "Error fetching colleges." });
   }
 };
+
+// college name availability.
+export const collegeNameAvailability = async (req, res) => {
+  try {
+    const { collegename } = req.params;
+    if (!collegename) {
+      return res
+        .status(400)
+        .json({ success: false, message: "No college name provided." });
+    }
+    const exists = await GetCollege.exists({ collegeName: collegename });
+    if (exists) {
+      return res.status(200).json({
+        success: true,
+        exists: true,
+      });
+    } else {
+      return res.status(200).json({
+        success: true,
+        exists: false,
+      });
+    }
+  } catch (e) {
+    console.log("Error in seeing college name", e);
+    res.status(500).json({
+      success: false,
+      message: "Error seeing if college name can be registered.",
+    });
+  }
+};

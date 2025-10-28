@@ -3,10 +3,9 @@ import {
   useContext,
   useState,
   useEffect,
-  createContext,
 } from "react";
-import { regesterCollegeH } from "../services/regesterCollege";
-import { getAllCreatedCollegesH } from "../services/regesterCollege";
+import { regesterCollegeH } from "../services/regesterCollege.js";
+import { getAllCreatedCollegesH } from "../services/regesterCollege.js";
 
 const AsCollegeContext = createContext();
 
@@ -46,13 +45,20 @@ export const AsCollegeProvider = ({ children }) => {
   };
 
   // fetch created Colleges.
-  //   const getCreatedColleges = async () => {
-  //     try{
+  // const getCreatedColleges = async () => {
+  //   try{
 
-  //     }catch(e){
+  //   }catch(e){
 
-  //     }
   //   }
+  // }
 
   // fetch all colleges.
+
+  return (
+    <AsCollegeContext.Provider value={{ registerANewCollege, loading, error }}>
+      {children}
+    </AsCollegeContext.Provider>
+  );
 };
+export const useAsCollegeContext = () =>  useContext(AsCollegeContext);
