@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useAsCollegeContext } from "../contexts/AsCollegeContext";
 import { regesterCollegeSideApi } from "../services/axios";
+import axios from "axios";
 
 function RegCollegeForm() {
   const { registerANewCollege, loading, error } = useAsCollegeContext();
@@ -9,6 +10,8 @@ function RegCollegeForm() {
   const [collegeName, setCollegeName] = useState("");
   const [location, setLocation] = useState([{}]);
   const [fields, setFields] = useState([]);
+
+  const [displayPinChoice, setDisplayPinChoice] = useState([]);
 
   const [inpMessage, setInpMessage] = useState("");
   const [inpError, setInpError] = useState("");
@@ -60,6 +63,23 @@ function RegCollegeForm() {
     }
   };
 
+  // handle pin code.
+  const handlePincode = async () => {
+    if (!pincode || pincode?.length !== 6) {
+      setInpMessage("Pincode is likely to be 6 digit long.");
+      return;
+    }
+    const res = await axios.get(
+      `https://api.postalpincode.in/pincode/${pincode}`
+    );
+
+    console.log(res?.data);
+    if (res?.status === 200) {
+      setDisplayPinChoice(res?.data[0]?.PostOffice[0]?.Block);
+      console.log(res?.data[0]?.PostOffice[0]?.Block);
+    }
+  };
+
   return (
     <div>
       {inpMessage && <p>{inpMessage}</p>}
@@ -73,6 +93,18 @@ function RegCollegeForm() {
           name="collegeName"
           onChange={(e) => handleInput(e)}
           onBlur={checkCollegeNameExists}
+        ></input>
+
+        <label htmlFor="pincode">Location Pin Code.</label>
+        {displayPinChoice && <p>{displayPinChoice}</p>}
+        <input
+          id="pincode"
+          type="number"
+          placeholder="Pincode"
+          value={pincode}
+          name="pincode"
+          onChange={(e) => handleInput(e)}
+          onBlur={handlePincode}
         ></input>
       </form>
     </div>
