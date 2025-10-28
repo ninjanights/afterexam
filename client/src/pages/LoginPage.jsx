@@ -1,14 +1,14 @@
-import React, { useState,  } from "react";
+import React, { useState } from "react";
 import { useUserContext } from "../contexts/UserContext";
 import { useNavigate } from "react-router-dom";
-useNavigate
+useNavigate;
 function LoginPage() {
   const [username, setUsername] = useState("");
   const [role, setRole] = useState("student");
   const [message, setMessage] = useState("");
 
   const { login } = useUserContext();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const handleLogin = async () => {
     const res = await login(username, role);
@@ -17,7 +17,7 @@ function LoginPage() {
         setMessage(res.message);
       }
       console.log(res, "res in loggin");
-      navigate("/home")
+      navigate("/home");
     } else {
       console.log("login failed");
     }
@@ -35,7 +35,8 @@ function LoginPage() {
     <div>
       <p>{message ? message : ""}</p>
       <label htmlFor={"usernameid"}>
-        Already have an username? then contnue, else login with a new usrname.
+        Already have an username? just put the username to contnue, else login
+        with a new username.
       </label>
       <input
         type="text"

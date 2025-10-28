@@ -5,18 +5,23 @@ const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
   const [loggedInUser, setLoggedInUser] = useState(() => {
-    const storedUser = localStorage.getItem("user");
-    return storedUser ? JSON.parse(storedUser) : null;
+    try {
+      const storedUser = localStorage.getItem("user");
+      if (!storedUser || storedUser === "undefiend") return null;
+      return JSON.parse(storedUser);
+    } catch (e) {
+      console.error("Failed to parse user from localStorage:", e);
+      return null;
+    }
   });
 
   // login fn
   const login = async (username, role) => {
     const res = await loginUserH(username, role);
-    if (res) {
-      setLoggedInUser(res.data.user);
+    if (res?.data) {
+      setLoggedInUser(res);
       console.log(res);
 
-      
       localStorage.setItem("user", JSON.stringify(res));
     }
     return res;
