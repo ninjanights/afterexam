@@ -6,12 +6,14 @@ import axios from "axios";
 function RegCollegeForm() {
   const { registerANewCollege, loading, error } = useAsCollegeContext();
   const [pincode, setPincode] = useState("");
+  const [nameAndField, setNameAndField] = useState(false);
 
   const [collegeName, setCollegeName] = useState("");
   const [location, setLocation] = useState([
     { area: null, city: null, PIN: null, country: null },
   ]);
-  const [fields, setFields] = useState([]);
+
+  const [fieldName, setFieldName] = useState("");
 
   const [displayPinChoice, setDisplayPinChoice] = useState([]);
 
@@ -32,9 +34,12 @@ function RegCollegeForm() {
 
       if (res?.data?.exists) {
         setInpMessage(`${collegeName} already exists.`);
+        setNameAndField(false);
+
         return true;
       } else if (!res?.data?.exists) {
         setInpMessage(`${collegeName} available.`);
+        setNameAndField(false);
         return false;
       }
     } catch (e) {
@@ -63,6 +68,9 @@ function RegCollegeForm() {
     if (name === "pincode") {
       setPincode(value);
     }
+    if (name === "fieldname") {
+      setFieldName(value);
+    }
   };
 
   // handle pin code.
@@ -81,7 +89,7 @@ function RegCollegeForm() {
         setDisplayPinChoice(res?.data[0]?.PostOffice[0]);
         console.log(res?.data[0]?.PostOffice[0]?.Block);
       } else {
-        setInpMessage("jjj");
+        setInpMessage("This pincode isn't signed to a place.");
       }
     }
   };
@@ -103,8 +111,7 @@ function RegCollegeForm() {
         country: Country || null,
       },
     ]);
-
-    setPincode();
+    setPincode(Pincode);
   };
 
   // handle clear pin location input.
@@ -114,6 +121,32 @@ function RegCollegeForm() {
       setLocation([{ area: null, city: null, PIN: null, country: null }]);
     }
   };
+
+  // handle Check Field Name.
+  const handleCheckFieldName = async () => {
+    if (!fieldName.trim() || !collegeName) return;
+
+    const fieldname = fieldName;
+    console.log(fieldname, collegeName, "🎏");
+    const res = await regesterCollegeSideApi.post(
+      `/checkfieldname/${fieldname}`,
+      {
+        collegeName,
+      }
+    );
+
+    if (!res?.data?.exists) {
+      setInpMessage(res?.data?.message);
+      setNameAndField(true);
+    }
+  };
+
+  useEffect(() => {
+    if (!nameAndField && collegeName && fieldName) {
+      handleCheckFieldName();
+      console.log("yess 🌸");
+    }
+  }, [nameAndField, fieldName, collegeName]);
 
   return (
     <div>
@@ -130,12 +163,6 @@ function RegCollegeForm() {
           onBlur={checkCollegeNameExists}
         ></input>
 
-        {/* location: {
-      area: { type: String, required: true },
-      city: { type: String, required: true },
-      PIN: { type: Number, required: true },
-      country: { type: String, required: true },
-    }, */}
         {location?.map((l, i) => (
           <div key={i}>
             {Object.entries(l).map(([key, value]) => (
@@ -166,6 +193,22 @@ function RegCollegeForm() {
         <button disabled={pincode === ""} onClick={handleClearPinInput}>
           Clear
         </button>
+
+        <input
+          style={{
+            borderColor: nameAndField ? "green" : "gray",
+            borderWidth: "2px",
+            borderStyle: "solid",
+          }}
+          id="fieldName"
+          type="text"
+          placeholder="Field name."
+          value={fieldName}
+          name="fieldname"
+          onChange={(e) => handleInput(e)}
+          onBlur={handleCheckFieldName}
+        ></input>
+        <button onClick={setFieldName}>Add field</button>
       </form>
     </div>
   );

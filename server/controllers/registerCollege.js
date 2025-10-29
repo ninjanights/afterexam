@@ -110,3 +110,45 @@ export const collegeNameAvailability = async (req, res) => {
     });
   }
 };
+
+// check field name under college.
+export const checkFieldName = async (req, res) => {
+  try {
+    const { fieldname } = req.params;
+    const { collegeName } = req.body;
+console.log(fieldname, collegeName, "👽");
+    if (!fieldname || !collegeName) {
+      return res.status(400).json({
+        success: false,
+        message: "No College name or Field name provided.",
+      });
+    }
+    const thisCollege = await GetCollege.findOne({ collegeName: collegeName });
+    if (!thisCollege) {
+      return res.status(200).json({
+        success: true,
+        exists: false,
+        message: "This field is ready to belong to this college.",
+      });
+    }
+
+    const fieldsExists = thisCollege?.fields?.some(
+      (f) => f.fieldName.toLowerCase() === fieldname.toLowerCase()
+    );
+
+    return res.status(200).json({
+      success: true,
+      exists: fieldsExists,
+      message: fieldsExists
+        ? "Field name already exists in this college."
+        : "Field name is available.",
+    });
+  } catch (e) {
+    console.log("Error Checking field name user college.", e);
+    res.status(500).json({
+      success: false,
+      message:
+        "Server side error while checking this field name already exists or not.",
+    });
+  }
+};
