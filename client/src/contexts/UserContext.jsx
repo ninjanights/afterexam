@@ -4,16 +4,17 @@ import { loginUserH } from "../services/regesterCollege";
 const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
-  const [loggedInUser, setLoggedInUser] = useState(() => {
-    try {
-      const storedUser = localStorage.getItem("user");
-      if (!storedUser || storedUser === "undefiend") return null;
-      return JSON.parse(storedUser);
-    } catch (e) {
-      console.error("Failed to parse user from localStorage:", e);
-      return null;
-    }
-  });
+  const [loggedInUser, setLoggedInUser] = useState(null);
+
+  // get if already user is in Local Storage.
+  useEffect(() => {
+    if (loggedInUser) return;
+
+    const alreadyUserInLocalStorage = localStorage.getItem("user");
+    if (!alreadyUserInLocalStorage || alreadyUserInLocalStorage === "undefined")
+      return;
+    setLoggedInUser(JSON.parse(alreadyUserInLocalStorage));
+  }, []);
 
   // login fn
   const login = async (username, role) => {

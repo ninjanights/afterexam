@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useAsCollegeContext } from "../contexts/AsCollegeContext";
 import { regesterCollegeSideApi } from "../services/axios";
 import axios from "axios";
@@ -8,7 +8,9 @@ function RegCollegeForm() {
   const [pincode, setPincode] = useState("");
 
   const [collegeName, setCollegeName] = useState("");
-  const [location, setLocation] = useState([{}]);
+  const [location, setLocation] = useState([
+    { area: null, city: null, PIN: null, country: null },
+  ]);
   const [fields, setFields] = useState([]);
 
   const [displayPinChoice, setDisplayPinChoice] = useState([]);
@@ -75,8 +77,41 @@ function RegCollegeForm() {
 
     console.log(res?.data);
     if (res?.status === 200) {
-      setDisplayPinChoice(res?.data[0]?.PostOffice[0]?.Block);
-      console.log(res?.data[0]?.PostOffice[0]?.Block);
+      if (res?.data[0]?.Status === "Success") {
+        setDisplayPinChoice(res?.data[0]?.PostOffice[0]);
+        console.log(res?.data[0]?.PostOffice[0]?.Block);
+      } else {
+        setInpMessage("jjj");
+      }
+    }
+  };
+
+  // handle set Location data.
+  const handleSetLocationData = async () => {
+    const { Block, Country, Name, Pincode } = displayPinChoice;
+    if (!Block || !Pincode || !Country) {
+      setInpMessage(
+        "This Pincode doesn't provide enough data to register with."
+      );
+      return;
+    }
+    setLocation([
+      {
+        area: Name || null,
+        city: Block || null,
+        PIN: Pincode || null,
+        country: Country || null,
+      },
+    ]);
+
+    setPincode();
+  };
+
+  // handle clear pin location input.
+  const handleClearPinInput = () => {
+    if (pincode || location?.area !== null) {
+      setPincode("");
+      setLocation([{ area: null, city: null, PIN: null, country: null }]);
     }
   };
 
@@ -95,8 +130,30 @@ function RegCollegeForm() {
           onBlur={checkCollegeNameExists}
         ></input>
 
+        {/* location: {
+      area: { type: String, required: true },
+      city: { type: String, required: true },
+      PIN: { type: Number, required: true },
+      country: { type: String, required: true },
+    }, */}
+        {location?.map((l, i) => (
+          <div key={i}>
+            {Object.entries(l).map(([key, value]) => (
+              <p key={key}>
+                {key}: {value}
+              </p>
+            ))}
+          </div>
+        ))}
+
         <label htmlFor="pincode">Location Pin Code.</label>
-        {displayPinChoice && <p>{displayPinChoice}</p>}
+        {displayPinChoice && (
+          <div>
+            <p onClick={handleSetLocationData}>
+              {displayPinChoice?.Block || displayPinChoice?.Name}
+            </p>
+          </div>
+        )}
         <input
           id="pincode"
           type="number"
@@ -106,6 +163,9 @@ function RegCollegeForm() {
           onChange={(e) => handleInput(e)}
           onBlur={handlePincode}
         ></input>
+        <button disabled={pincode === ""} onClick={handleClearPinInput}>
+          Clear
+        </button>
       </form>
     </div>
   );
