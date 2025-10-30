@@ -3,6 +3,68 @@ import { useAsCollegeContext } from "../contexts/AsCollegeContext";
 import { regesterCollegeSideApi } from "../services/axios";
 import axios from "axios";
 
+function AddSubject({ subjectsList, setSubjectsList, setInpMessage }) {
+  const [subName, setSubName] = useState("");
+  const [grade, setGrade] = useState("");
+  const [okSub, setOkSub] = useState(false);
+
+  const alreadySub = () => {
+    return subjectsList.some((s) => s.name === subName);
+  };
+
+  const handleSubValue = (e) => {
+    e.preventDefault();
+
+    if (alreadySub()) {
+      setInpMessage("Subject already exists.");
+      return;
+    }
+
+    setSubjectsList((prev) => [...prev, { name: subName, grade: grade }]);
+    setSubName("");
+    setGrade("");
+  };
+
+  const gradeValue = {
+    "A+": 90,
+    A: 85,
+    "B+": 80,
+    B: 75,
+    "C+": 70,
+    C: 65,
+    D: 60,
+  };
+
+  return (
+    <div>
+      <input
+        type="text"
+        placeholder="Subject"
+        value={subName}
+        onChange={(e) => setSubName(e.target.value)}
+      ></input>
+      <div>
+        {Object.keys(gradeValue).map((g) => (
+          <p
+            onClick={() => {
+              (e) => e.preventDefault();
+              setGrade(g);
+            }}
+          >
+            {g}
+          </p>
+        ))}
+      </div>
+      <button
+        disabled={subName === "" || grade === ""}
+        onClick={handleSubValue}
+      >
+        Add{" "}
+      </button>
+    </div>
+  );
+}
+
 function RegCollegeForm() {
   const { registerANewCollege, loading, error } = useAsCollegeContext();
   const [pincode, setPincode] = useState("");
@@ -13,6 +75,10 @@ function RegCollegeForm() {
     { area: null, city: null, PIN: null, country: null },
   ]);
 
+  const [displayFill, setDisplayFill] = useState(false);
+  const [subjectsList, setSubjectsList] = useState([
+    { name: "Mathamatics", grade: "A" },
+  ]);
   const [fieldName, setFieldName] = useState("");
 
   const [displayPinChoice, setDisplayPinChoice] = useState([]);
@@ -141,6 +207,18 @@ function RegCollegeForm() {
     }
   };
 
+  // handle process to fill field
+  const handleProcessToFillField = (e) => {
+    e.preventDefault();
+    if (location[0] !== "" && nameAndField && fieldName) {
+      setDisplayFill(true);
+    }
+  };
+
+  // is location filled has data?
+  const isLocationValid = () =>
+    location.some((l) => l.area && l.city && l.PIN && l.country);
+
   useEffect(() => {
     if (!nameAndField && collegeName && fieldName) {
       handleCheckFieldName();
@@ -208,7 +286,29 @@ function RegCollegeForm() {
           onChange={(e) => handleInput(e)}
           onBlur={handleCheckFieldName}
         ></input>
-        <button onClick={setFieldName}>Add field</button>
+        <button
+          disabled={!fieldName || !isLocationValid() || !collegeName}
+          onClick={handleProcessToFillField}
+        >
+          Next
+        </button>
+
+        {displayFill && (
+          <div>
+            {subjectsList.map((s, i) => (
+              <div key={i}>
+                <p>
+                  {s.name} - {s.grade}
+                </p>
+              </div>
+            ))}
+            <AddSubject
+              subjectsList={subjectsList}
+              setSubjectsList={setSubjectsList}
+              setInpMessage={setInpMessage}
+            />
+          </div>
+        )}
       </form>
     </div>
   );
