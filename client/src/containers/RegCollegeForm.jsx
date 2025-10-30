@@ -3,7 +3,13 @@ import { useAsCollegeContext } from "../contexts/AsCollegeContext";
 import { regesterCollegeSideApi } from "../services/axios";
 import axios from "axios";
 
-function AddSubject({ subjectsList, setSubjectsList, setInpMessage }) {
+function AddSubject({
+  subjectsList,
+  setSubjectsList,
+  setInpMessage,
+  gradeValue,
+  handleMinTotalRequirement,
+}) {
   const [subName, setSubName] = useState("");
   const [grade, setGrade] = useState("");
   const [okSub, setOkSub] = useState(false);
@@ -23,16 +29,6 @@ function AddSubject({ subjectsList, setSubjectsList, setInpMessage }) {
     setSubjectsList((prev) => [...prev, { name: subName, grade: grade }]);
     setSubName("");
     setGrade("");
-  };
-
-  const gradeValue = {
-    "A+": 90,
-    A: 85,
-    "B+": 80,
-    B: 75,
-    "C+": 70,
-    C: 65,
-    D: 60,
   };
 
   return (
@@ -85,6 +81,18 @@ function RegCollegeForm() {
 
   const [inpMessage, setInpMessage] = useState("");
   const [inpError, setInpError] = useState("");
+
+  const [minTotalRequirment, setMinTotalRequirment] = useState(0);
+
+  const gradeValue = {
+    "A+": 90,
+    A: 85,
+    "B+": 80,
+    B: 75,
+    "C+": 70,
+    C: 65,
+    D: 60,
+  };
 
   // check if college name exists.
   const checkCollegeNameExists = async () => {
@@ -226,6 +234,21 @@ function RegCollegeForm() {
     }
   }, [nameAndField, fieldName, collegeName]);
 
+  // handle min total requirement.
+  const handleMinTotalRequirement = () => {
+    const total = subjectsList?.reduce((acc, s) => {
+      return acc + (gradeValue[s.grade] || 0);
+    }, 0);
+
+    const average = total / subjectsList?.length;
+    return average;
+  };
+
+  useEffect(() => {
+    const av = handleMinTotalRequirement();
+    setMinTotalRequirment(av);
+  }, [subjectsList]);
+
   return (
     <div>
       {inpMessage && <p>{inpMessage}</p>}
@@ -292,7 +315,7 @@ function RegCollegeForm() {
         >
           Next
         </button>
-
+        <p>{Math.ceil(minTotalRequirment)}%</p>
         {displayFill && (
           <div>
             {subjectsList.map((s, i) => (
@@ -306,6 +329,8 @@ function RegCollegeForm() {
               subjectsList={subjectsList}
               setSubjectsList={setSubjectsList}
               setInpMessage={setInpMessage}
+              gradeValue={gradeValue}
+              handleMinTotalRequirement={handleMinTotalRequirement}
             />
           </div>
         )}
