@@ -11,8 +11,8 @@ const fieldSchema = new mongoose.Schema({
         type: String,
         required: true,
       },
-      score: {
-        type: Number,
+      grade: {
+        type: String,
         required: true,
         min: 0,
         max: 100,

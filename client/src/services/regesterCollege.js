@@ -5,7 +5,7 @@ export const regesterCollegeH = async (collegeName, location, fields) => {
   try {
     if (!collegeName || !location || !fields) return;
 
-    console.log(collegeName, location, fields, "🥬🥬🥬");
+    console.log(collegeName, location, fields, "🥬🥬🥬x");
     const user = JSON.parse(localStorage.getItem("user"));
 
     if (!user)
@@ -19,9 +19,9 @@ export const regesterCollegeH = async (collegeName, location, fields) => {
     const response = await regesterCollegeSideApi.post(
       `/registercollege/${username}`,
       {
-        collegeName,
-        location,
-        fields,
+        collegeName: collegeName,
+        location: location,
+        fields: fields,
       }
     );
 

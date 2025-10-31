@@ -6,7 +6,12 @@ export const registerCollegeController = async (req, res) => {
   try {
     const { username } = req.params;
     const { collegeName, location, fields } = req.body;
-    console.log(req.body, "🎏");
+    console.log(
+      req?.body?.collegeName,
+      req?.body?.location,
+      req?.body?.fields,
+      "🎏 req b"
+    );
     if (!collegeName || !location || !fields)
       return res
         .status(400)
@@ -21,10 +26,13 @@ export const registerCollegeController = async (req, res) => {
       });
     }
 
+    const locationObj = Array.isArray(location) ? location?.[0] : location;
+
     const newCollege = new GetCollege({
-      collegeName,
-      location,
-      fields,
+      collegeName: collegeName,
+      location: locationObj,
+
+      fields: fields,
       ctratedBy: user?._id,
     });
 
@@ -116,7 +124,7 @@ export const checkFieldName = async (req, res) => {
   try {
     const { fieldname } = req.params;
     const { collegeName } = req.body;
-console.log(fieldname, collegeName, "👽");
+    console.log(fieldname, collegeName, "👽");
     if (!fieldname || !collegeName) {
       return res.status(400).json({
         success: false,

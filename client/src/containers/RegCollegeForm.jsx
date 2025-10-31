@@ -8,14 +8,13 @@ function AddSubject({
   setSubjectsList,
   setInpMessage,
   gradeValue,
-  handleMinTotalRequirement,
+  setOkSub,
 }) {
   const [subName, setSubName] = useState("");
   const [grade, setGrade] = useState("");
-  const [okSub, setOkSub] = useState(false);
 
   const alreadySub = () => {
-    return subjectsList.some((s) => s.name === subName);
+    return subjectsList.some((s) => s.subject === subName);
   };
 
   const handleSubValue = (e) => {
@@ -26,7 +25,8 @@ function AddSubject({
       return;
     }
 
-    setSubjectsList((prev) => [...prev, { name: subName, grade: grade }]);
+    setSubjectsList((prev) => [...prev, { subject: subName, grade: grade }]);
+    setOkSub(true);
     setSubName("");
     setGrade("");
   };
@@ -40,10 +40,11 @@ function AddSubject({
         onChange={(e) => setSubName(e.target.value)}
       ></input>
       <div>
-        {Object.keys(gradeValue).map((g) => (
+        {Object.keys(gradeValue).map((g, i) => (
           <p
-            onClick={() => {
-              (e) => e.preventDefault();
+            key={i}
+            onClick={(e) => {
+              e.preventDefault();
               setGrade(g);
             }}
           >
@@ -73,14 +74,17 @@ function RegCollegeForm() {
 
   const [displayFill, setDisplayFill] = useState(false);
   const [subjectsList, setSubjectsList] = useState([
-    { name: "Mathamatics", grade: "A" },
+    { subject: "Mathamatics", grade: "A" },
   ]);
   const [fieldName, setFieldName] = useState("");
+  const [fieldBucket, setFieldBucket] = useState(null);
+  const [nameOk, setNameOk] = useState(false);
 
-  const [displayPinChoice, setDisplayPinChoice] = useState([]);
+  const [displayPinChoice, setDisplayPinChoice] = useState(null);
 
   const [inpMessage, setInpMessage] = useState("");
   const [inpError, setInpError] = useState("");
+  const [okSub, setOkSub] = useState(false);
 
   const [minTotalRequirment, setMinTotalRequirment] = useState(0);
 
@@ -93,6 +97,12 @@ function RegCollegeForm() {
     C: 65,
     D: 60,
   };
+
+  useEffect(() => {
+    if (fieldBucket) {
+      console.log(fieldBucket, "🎏45");
+    }
+  }, [fieldBucket]);
 
   // check if college name exists.
   const checkCollegeNameExists = async () => {
@@ -109,10 +119,12 @@ function RegCollegeForm() {
       if (res?.data?.exists) {
         setInpMessage(`${collegeName} already exists.`);
         setNameAndField(false);
+        setNameOk(false);
 
         return true;
       } else if (!res?.data?.exists) {
         setInpMessage(`${collegeName} available.`);
+        setNameOk(true);
         setNameAndField(false);
         return false;
       }
@@ -149,27 +161,32 @@ function RegCollegeForm() {
 
   // handle pin code.
   const handlePincode = async () => {
-    if (!pincode || pincode?.length !== 6) {
-      setInpMessage("Pincode is likely to be 6 digit long.");
-      return;
-    }
-    const res = await axios.get(
-      `https://api.postalpincode.in/pincode/${pincode}`
-    );
-
-    console.log(res?.data);
-    if (res?.status === 200) {
-      if (res?.data[0]?.Status === "Success") {
-        setDisplayPinChoice(res?.data[0]?.PostOffice[0]);
-        console.log(res?.data[0]?.PostOffice[0]?.Block);
-      } else {
-        setInpMessage("This pincode isn't signed to a place.");
+    try {
+      if (!pincode || pincode?.length !== 6) {
+        setInpMessage("Pincode is likely to be 6 digit long.");
+        return;
       }
+      const res = await axios.get(
+        `https://api.postalpincode.in/pincode/${pincode}`
+      );
+
+      console.log(res?.data);
+      if (res?.status === 200) {
+        if (res?.data[0]?.Status === "Success") {
+          setDisplayPinChoice(res?.data[0]?.PostOffice[0]);
+          console.log(res?.data[0]?.PostOffice[0]?.Block);
+        } else {
+          setInpMessage("This pincode isn't signed to a place.");
+        }
+      }
+    } catch (e) {
+      setInpMessage("Error while checking for pincode validation.");
     }
   };
 
   // handle set Location data.
   const handleSetLocationData = async () => {
+    if (!displayPinChoice) return;
     const { Block, Country, Name, Pincode } = displayPinChoice;
     if (!Block || !Pincode || !Country) {
       setInpMessage(
@@ -209,16 +226,21 @@ function RegCollegeForm() {
       }
     );
 
-    if (!res?.data?.exists) {
+    if (!res?.data?.exists && nameOk) {
       setInpMessage(res?.data?.message);
       setNameAndField(true);
+    } else if (res?.data?.exists && !nameOk) {
+      setInpMessage("First change the college name to something new.");
+      setNameAndField(false);
     }
   };
 
   // handle process to fill field
   const handleProcessToFillField = (e) => {
     e.preventDefault();
-    if (location[0] !== "" && nameAndField && fieldName) {
+    if (!nameOk) {
+      setInpMessage("You can't register a new college with an existing name.");
+    } else if (isLocationValid() && nameAndField && fieldName && nameOk) {
       setDisplayFill(true);
     }
   };
@@ -227,20 +249,13 @@ function RegCollegeForm() {
   const isLocationValid = () =>
     location.some((l) => l.area && l.city && l.PIN && l.country);
 
-  useEffect(() => {
-    if (!nameAndField && collegeName && fieldName) {
-      handleCheckFieldName();
-      console.log("yess 🌸");
-    }
-  }, [nameAndField, fieldName, collegeName]);
-
   // handle min total requirement.
   const handleMinTotalRequirement = () => {
     const total = subjectsList?.reduce((acc, s) => {
       return acc + (gradeValue[s.grade] || 0);
     }, 0);
 
-    const average = total / subjectsList?.length;
+    const average = subjectsList?.length > 0 ? total / subjectsList.length : 0;
     return average;
   };
 
@@ -249,10 +264,58 @@ function RegCollegeForm() {
     setMinTotalRequirment(av);
   }, [subjectsList]);
 
+  // handle add field to bucket.
+  const handleAddFieldToBucket = (e) => {
+    e.preventDefault();
+
+    if (!collegeName || !isLocationValid() || !fieldName || !okSub) return;
+    else {
+      setFieldBucket({
+        fieldName: fieldName,
+        requiredSubjects: subjectsList,
+        minTotalRequirment: minTotalRequirment,
+      });
+    }
+  };
+
+  // handle form submit for new college with one field.
+  const handleRegisterANewCollegeWithOneField = async (e) => {
+    e.preventDefault();
+    try {
+      const fields = fieldBucket;
+
+      console.log(fields, "GO NOW");
+
+      if (!collegeName || !isLocationValid() || !fields) {
+        setInpMessage("Somethings required before registering.");
+      }
+      const res = await registerANewCollege(collegeName, location, fields);
+      if (res?.success) {
+        setInpMessage(res?.message);
+        console.log(res, "NEW COLLEGE RES.");
+        setCollegeName("");
+        setFieldBucket("");
+        setLocation([{ area: null, city: null, PIN: null, country: null }]);
+
+        setNameAndField(false);
+
+        setSubjectsList([{ subject: "Mathematics", grade: "A" }]);
+        setOkSub(false);
+        setDisplayFill(false);
+        setFieldName("");
+      } else {
+        setInpMessage(res?.message || "Registration failed.");
+      }
+    } catch (e) {
+      console.error("Unexpected error:", e);
+      setInpMessage("Something went wrong in registering college.");
+    }
+  };
+
   return (
     <div>
       {inpMessage && <p>{inpMessage}</p>}
-      <form>
+      <form onSubmit={handleRegisterANewCollegeWithOneField}>
         <label htmlFor="collegeName">College Name.</label>
         <input
           id="collegeName"
@@ -264,64 +327,75 @@ function RegCollegeForm() {
           onBlur={checkCollegeNameExists}
         ></input>
 
-        {location?.map((l, i) => (
-          <div key={i}>
-            {Object.entries(l).map(([key, value]) => (
-              <p key={key}>
-                {key}: {value}
-              </p>
-            ))}
-          </div>
-        ))}
-
-        <label htmlFor="pincode">Location Pin Code.</label>
-        {displayPinChoice && (
+        {nameOk && (
           <div>
-            <p onClick={handleSetLocationData}>
-              {displayPinChoice?.Block || displayPinChoice?.Name}
-            </p>
+            {location?.map((l, i) => (
+              <div key={i}>
+                {Object.entries(l).map(([key, value]) => (
+                  <p key={key}>
+                    {key}: {value}
+                  </p>
+                ))}
+              </div>
+            ))}
+
+            <label htmlFor="pincode">Location Pin Code.</label>
+            {displayPinChoice && (
+              <div>
+                <p onClick={handleSetLocationData}>
+                  {displayPinChoice?.Block || displayPinChoice?.Name}
+                </p>
+              </div>
+            )}
+
+            <input
+              id="pincode"
+              type="number"
+              placeholder="Pincode"
+              value={pincode}
+              name="pincode"
+              onChange={(e) => handleInput(e)}
+              onBlur={handlePincode}
+            ></input>
+            <button disabled={pincode === ""} onClick={handleClearPinInput}>
+              Clear
+            </button>
+
+            <input
+              style={{
+                borderColor: nameAndField ? "green" : "gray",
+                borderWidth: "2px",
+                borderStyle: "solid",
+              }}
+              id="fieldName"
+              type="text"
+              placeholder="Field name."
+              value={fieldName}
+              name="fieldname"
+              onChange={(e) => handleInput(e)}
+              onBlur={handleCheckFieldName}
+            ></input>
+            <button
+              disabled={
+                !fieldName ||
+                !isLocationValid() ||
+                !collegeName ||
+                !nameAndField
+              }
+              onClick={handleProcessToFillField}
+            >
+              Next
+            </button>
           </div>
         )}
-        <input
-          id="pincode"
-          type="number"
-          placeholder="Pincode"
-          value={pincode}
-          name="pincode"
-          onChange={(e) => handleInput(e)}
-          onBlur={handlePincode}
-        ></input>
-        <button disabled={pincode === ""} onClick={handleClearPinInput}>
-          Clear
-        </button>
 
-        <input
-          style={{
-            borderColor: nameAndField ? "green" : "gray",
-            borderWidth: "2px",
-            borderStyle: "solid",
-          }}
-          id="fieldName"
-          type="text"
-          placeholder="Field name."
-          value={fieldName}
-          name="fieldname"
-          onChange={(e) => handleInput(e)}
-          onBlur={handleCheckFieldName}
-        ></input>
-        <button
-          disabled={!fieldName || !isLocationValid() || !collegeName}
-          onClick={handleProcessToFillField}
-        >
-          Next
-        </button>
-        <p>{Math.ceil(minTotalRequirment)}%</p>
         {displayFill && (
           <div>
+            <p>{Math.ceil(minTotalRequirment)}%</p>
             {subjectsList.map((s, i) => (
               <div key={i}>
                 <p>
-                  {s.name} - {s.grade}
+                  {s.subject} - {s.grade}
                 </p>
               </div>
             ))}
@@ -330,10 +404,19 @@ function RegCollegeForm() {
               setSubjectsList={setSubjectsList}
               setInpMessage={setInpMessage}
               gradeValue={gradeValue}
+              setOkSub={setOkSub}
               handleMinTotalRequirement={handleMinTotalRequirement}
             />
           </div>
         )}
+
+        <button
+          disabled={!isLocationValid() || !okSub || !collegeName || !fieldName}
+          onClick={handleAddFieldToBucket}
+        >
+          Add {fieldName}
+        </button>
+        <button type="submit">Register field to this College.</button>
       </form>
     </div>
   );
