@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { regesterCollegeH } from "../services/regesterCollege.js";
-import { getAllCreatedCollegesH } from "../services/regesterCollege.js";
+import { getAllCollegesH } from "../services/regesterCollege.js";
 
 const AsCollegeContext = createContext();
 
@@ -11,6 +11,10 @@ export const AsCollegeProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // fetch all colleges.
+  const fetchAllColleges = async () => {};
+
+  // reg. a new college.
   const registerANewCollege = async (collegeName, location, fields) => {
     try {
       setLoading(true);
@@ -37,16 +41,6 @@ export const AsCollegeProvider = ({ children }) => {
       setLoading(false);
     }
   };
-
-  // const getCreatedColleges = async () => {
-  //   try{
-
-  //   }catch(e){
-
-  //   }
-  // }
-
-  // fetch all colleges.
 
   return (
     <AsCollegeContext.Provider value={{ registerANewCollege, loading, error }}>

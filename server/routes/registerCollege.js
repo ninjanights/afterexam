@@ -2,7 +2,7 @@ import express from "express";
 import {
   checkFieldName,
   collegeNameAvailability,
-  getCollegesByUsername,
+  getAllColleges,
   registerCollegeController,
 } from "../controllers/registerCollege.js";
 const router = express.Router();
@@ -11,13 +11,13 @@ const router = express.Router();
 router.post("/registercollege/:username", registerCollegeController);
 
 // get all created colleges, (as College)
-router.get("/createdcolleges/:username", getCollegesByUsername);
+router.get("/allcolleges/:username", getAllColleges);
 
 // get college name availability.
-router.get("/nameavailable/:collegename", collegeNameAvailability );
+router.get("/nameavailable/:collegename", collegeNameAvailability);
 
 // get if FieldName already exists under college name.
-router.post("/checkfieldname/:fieldname", checkFieldName)
+router.post("/checkfieldname/:fieldname", checkFieldName);
 
 // get all colleges
 // router.get("/allcolleges/:username", getCollegesByUsername);

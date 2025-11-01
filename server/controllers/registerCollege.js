@@ -52,34 +52,43 @@ export const registerCollegeController = async (req, res) => {
 };
 
 // get all created colleges. (as College)
-export const getCollegesByUsername = async (req, res) => {
+export const getAllColleges = async (req, res) => {
   try {
     const { username } = req.params;
+    const { isCollegeUser } = req.body; // true / false
+
     if (!username) {
       return res
         .status(400)
         .json({ success: false, message: "No user as College is logged in." });
     }
 
-    const user = await User.find({ username });
+    const user = await User.findOne({ username });
 
     if (!user) {
       return res.status(400).json({ success: false, message: "No user found" });
     }
 
-    if (!user.role === "college") {
-      return res.status(400).json({
-        success: false,
-        message: "Registering a college is only for college users.",
+    const allColleges = await GetCollege.find();
+
+    let collegesWithFlag = allColleges;
+
+    if (!isCollegeUser) {
+      return res.status(200).json({
+        success: true,
+        message: "Fetched all colleges.",
+        allCollegeList: allColleges,
       });
     }
+    collegesWithFlag = allColleges.map((c) => ({
+      ...c.toObject(),
+      ctratedBy: c.createdBy.toString() === user._id.toString(),
+    }));
 
-    const belongColleges = await GetCollege.find({ ctratedBy: user._id });
     res.status(200).json({
       success: true,
       message: "Found all the colleges by logged in college.",
-      data: belongColleges,
-      user_id: user._id,
+      allCollegeList: collegesWithFlag,
     });
   } catch (e) {
     console.log("Fetching all college error.", e);

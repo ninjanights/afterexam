@@ -65,32 +65,24 @@ export const loginUserH = async (username, role) => {
   }
 };
 
-// get all created colleges. (as College);
-export const getAllCreatedCollegesH = async () => {
+// get all colleges.
+export const getAllCollegesH = async () => {
   try {
-    const user = JSON.parse(localStorage.getItem("user"));
-    if (!user) {
-      return {
-        success: false,
-        message: "No logged in user found.",
-      };
-    }
+    const userLocal = JSON.parse(localStorage.getItem("user"));
+    const user = userLocal ? userLocal : "";
     const role = user?.data?.role;
-    if (!role || role !== "college") {
-      return {
-        success: false,
-        message: "This isn't a College user.",
-      };
-    }
+
     const username = user?.data?.username;
 
-    const res = await regesterCollegeSideApi(`/createdcolleges/${username}`);
+    const res = await regesterCollegeSideApi(`/allcolleges/${username}`, {
+      isCollegeUser: role === "college",
+    });
 
     if (res.data.success) {
       return {
         success: true,
         message: "Found colleges.",
-        createdCollegeList: res?.data?.data,
+        collegeList: res?.data?.allCollegeList,
       };
     }
   } catch (e) {
