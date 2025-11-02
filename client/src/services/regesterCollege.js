@@ -70,12 +70,15 @@ export const getAllCollegesH = async () => {
   try {
     const userLocal = JSON.parse(localStorage.getItem("user"));
     const user = userLocal ? userLocal : "";
+
+    console.log(user, "🍁,kdkdkdk");
     const role = user?.data?.role;
 
     const username = user?.data?.username;
+    const isCollegeUser = role === "college" ? true : false;
 
-    const res = await regesterCollegeSideApi(`/allcolleges/${username}`, {
-      isCollegeUser: role === "college",
+    const res = await regesterCollegeSideApi.post(`/allcolleges/${username}`, {
+      isCollegeUser: isCollegeUser,
     });
 
     if (res.data.success) {

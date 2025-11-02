@@ -11,7 +11,7 @@ const router = express.Router();
 router.post("/registercollege/:username", registerCollegeController);
 
 // get all created colleges, (as College)
-router.get("/allcolleges/:username", getAllColleges);
+router.post("/allcolleges/:username", getAllColleges);
 
 // get college name availability.
 router.get("/nameavailable/:collegename", collegeNameAvailability);

@@ -57,6 +57,8 @@ export const getAllColleges = async (req, res) => {
     const { username } = req.params;
     const { isCollegeUser } = req.body; // true / false
 
+    console.log(username, isCollegeUser, "🍙🍙");
+
     if (!username) {
       return res
         .status(400)
@@ -82,9 +84,10 @@ export const getAllColleges = async (req, res) => {
     }
     collegesWithFlag = allColleges.map((c) => ({
       ...c.toObject(),
-      ctratedBy: c.createdBy.toString() === user._id.toString(),
+      ctratedBy: c.createdBy?.toString() === user._id?.toString(),
     }));
 
+    console.log(collegesWithFlag, "🍙🍙🍙");
     res.status(200).json({
       success: true,
       message: "Found all the colleges by logged in college.",

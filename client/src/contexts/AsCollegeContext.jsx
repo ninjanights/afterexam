@@ -1,18 +1,42 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { regesterCollegeH } from "../services/regesterCollege.js";
-import { getAllCollegesH } from "../services/regesterCollege.js";
+import {
+  regesterCollegeH,
+  getAllCollegesH,
+} from "../services/regesterCollege.js";
 
 const AsCollegeContext = createContext();
 
 export const AsCollegeProvider = ({ children }) => {
   const [createdColleges, setCreatedColleges] = useState([]);
-  const [allColleges, setAllColleges] = useState([]);
+  const [allColleges, setAllColleges] = useState(null);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   // fetch all colleges.
-  const fetchAllColleges = async () => {};
+  const fetchAllColleges = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const res = await getAllCollegesH();
+      if (res?.success) {
+        console.log(res?.collegeList, "dss");
+        setAllColleges(res?.collegeList);
+        return { success: true };
+      } else {
+        setLoading(false);
+        return { success: false };
+      }
+    } catch (e) {
+      console.log("Error fetching all colleges.");
+      return {
+        data: null,
+        success: false,
+        message: "Something went wrong during getting all colleges.",
+      };
+    }
+  };
 
   // reg. a new college.
   const registerANewCollege = async (collegeName, location, fields) => {
@@ -43,7 +67,15 @@ export const AsCollegeProvider = ({ children }) => {
   };
 
   return (
-    <AsCollegeContext.Provider value={{ registerANewCollege, loading, error }}>
+    <AsCollegeContext.Provider
+      value={{
+        registerANewCollege,
+        fetchAllColleges,
+        allColleges,
+        loading,
+        error,
+      }}
+    >
       {children}
     </AsCollegeContext.Provider>
   );
