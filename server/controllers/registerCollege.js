@@ -6,12 +6,7 @@ export const registerCollegeController = async (req, res) => {
   try {
     const { username } = req.params;
     const { collegeName, location, fields } = req.body;
-    console.log(
-      req?.body?.collegeName,
-      req?.body?.location,
-      req?.body?.fields,
-      "🎏 req b"
-    );
+
     if (!collegeName || !location || !fields)
       return res
         .status(400)
@@ -19,7 +14,7 @@ export const registerCollegeController = async (req, res) => {
 
     const user = await User.findOne({ username });
 
-    if (!user || user.role !== "college") {
+    if (!user || user?.role !== "college") {
       return res.status(403).json({
         success: false,
         message: "Only college users can create colleges.",
@@ -31,9 +26,8 @@ export const registerCollegeController = async (req, res) => {
     const newCollege = new GetCollege({
       collegeName: collegeName,
       location: locationObj,
-
       fields: fields,
-      ctratedBy: user?._id,
+      createdBy: user?._id,
     });
 
     await newCollege.save();

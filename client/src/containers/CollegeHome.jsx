@@ -2,14 +2,13 @@ import React, { useEffect, useState } from "react";
 import { useAsCollegeContext } from "../contexts/AsCollegeContext";
 import RegCollegeForm from "./RegCollegeForm";
 
-// collegeName, location, fields
 function CollegeHome() {
   const [showRCF, setShowRCF] = useState(false);
   const { allColleges, fetchAllColleges } = useAsCollegeContext();
 
   useEffect(() => {
     if (allColleges === null) fetchAllColleges();
-  }, []);
+  }, [allColleges]);
 
   return (
     <div>

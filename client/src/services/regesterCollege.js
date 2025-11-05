@@ -5,7 +5,6 @@ export const regesterCollegeH = async (collegeName, location, fields) => {
   try {
     if (!collegeName || !location || !fields) return;
 
-    console.log(collegeName, location, fields, "🥬🥬🥬x");
     const user = JSON.parse(localStorage.getItem("user"));
 
     if (!user)
@@ -71,7 +70,6 @@ export const getAllCollegesH = async () => {
     const userLocal = JSON.parse(localStorage.getItem("user"));
     const user = userLocal ? userLocal : "";
 
-    console.log(user, "🍁,kdkdkdk");
     const role = user?.data?.role;
 
     const username = user?.data?.username;
