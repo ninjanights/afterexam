@@ -12,6 +12,13 @@ const userSchema = new mongoose.Schema(
       enum: ["student", "college"],
       required: true,
     },
+    subjectStack: [
+      {
+        subject: { type: String, required: true, unique: true },
+        grade: { type: String, required: true },
+      },
+    ],
+    stackGrand: { type: Number, required: true },
   },
   { timestamps: true }
 );

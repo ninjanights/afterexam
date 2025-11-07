@@ -19,7 +19,7 @@ export const AsCollegeProvider = ({ children }) => {
       setLoading(true);
       setError(null);
 
-      const res = await getAllCollegesH();
+      const res = await getAllCollegesH(); 
       if (res?.success) {
         console.log(res?.collegeList, "dss");
         setAllColleges(res?.collegeList);

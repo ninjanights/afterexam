@@ -1,10 +1,21 @@
 import React, { useEffect, useState } from "react";
+import { useStudentSubject } from "../contexts/AsStudentContext";
 
 function StudentQueryForm() {
-  const [studentSubjectList, setStudentSubjectList] = useState([]);
+  const {
+    subjectStack,
+    stackGrand,
+    loading,
+    error,
+    fetchSubjectStack,
+    addSubjectStack,
+  } = useStudentSubject();
+
   const [subjectInput, setSubjectInput] = useState("");
   const [gradeInput, setGradeInput] = useState("");
   const [subNameOk, setSubNameOk] = useState(false);
+
+  const [displayMessage, setDisplayMessage] = useState("");
 
   const gradesList = {
     "A+": 90,
@@ -26,10 +37,11 @@ function StudentQueryForm() {
   };
 
   // check if it's already in list.
-  const handleCheckIfPreSubject = () => {
+  const handleCheckIfPreSubject = (e) => {
+    e.preventDefault();
     if (!subjectInput.trim()) return;
 
-    const isDuplicate = studentSubjectList.some(
+    const isDuplicate = subjectStack.some(
       (sub) =>
         sub.subject.toLowerCase().trim() === subjectInput.toLowerCase().trim()
     );
@@ -40,56 +52,69 @@ function StudentQueryForm() {
     }
   };
 
-  // add one sub in form list.
-  const addOneSubject = () => {
-    if (!subjectInput || !gradeInput || !subNameOk) return;
-    const newEntry = { subject: subjectInput, grade: gradeInput };
+  const handleAddToSubjectStack = async (e) => {
+    e.preventDefault();
+    if (subjectInput === "" || gradeInput === "") return;
 
-    setStudentSubjectList((prev) => [...prev, newEntry]);
+    const newEntry = {
+      newSubject: subjectInput,
+      newGrade: gradeInput,
+    };
 
-    setSubjectInput("");
-    setGradeInput("");
-    setSubNameOk(false);
+    const res = await addSubjectStack(newEntry);
+    if (res.success) {
+      setSubjectInput("");
+      setGradeInput("");
+    }
   };
 
   return (
     <div>
-      {Array.isArray(studentSubjectList) &&
-        studentSubjectList.length > 0 &&
-        studentSubjectList.map((s, i) => (
+      {Array.isArray(subjectStack) &&
+        subjectStack?.length > 0 &&
+        subjectStack?.map((s, i) => (
           <p key={i}>
             {s?.subject} - {s?.grade}
           </p>
         ))}
+      {displayMessage && <p style={{ color: "red" }}>{displayMessage}</p>}
+      <form onSubmit={handleAddToSubjectStack}>
+        <input
+          type="text"
+          placeholder="Subject"
+          value={subjectInput}
+          name="subjectInput"
+          onChange={(e) => handleInputValue(e)}
+        ></input>
+        <button disabled={!subjectInput} onClick={handleCheckIfPreSubject}>
+          NEXT
+        </button>
 
-      <input
-        type="text"
-        placeholder="Subject"
-        value={subjectInput}
-        name="subjectInput"
-        onChange={(e) => handleInputValue(e)}
-      ></input>
-      <button disabled={!subjectInput} onClick={handleCheckIfPreSubject}>
-        NEXT
-      </button>
+        {subNameOk && (
+          <div>
+            {Object.keys(gradesList).map((g, i) => (
+              <p
+                key={i}
+                style={{
+                  cursor: "pointer",
+                  fontWeight: gradeInput === g ? "bold" : "normal",
+                  color: gradeInput === g ? "green" : "black",
+                }}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setGradeInput(g);
+                }}
+              >
+                {g}
+              </p>
+            ))}
 
-      {subNameOk && (
-        <div>
-          {Object.keys(gradesList).map((g, i) => (
-            <p
-              key={i}
-              onClick={(e) => {
-                e.preventDefault();
-                setGradeInput(g);
-              }}
-            >
-              {g}
-            </p>
-          ))}
-
-          <button onClick={addOneSubject}>Add Sub</button>
-        </div>
-      )}
+            <button disabled={!subNameOk || loading} type="submit">
+              {loading ? "Adding" : `Add ${subjectInput}.`}
+            </button>
+          </div>
+        )}
+      </form>
     </div>
   );
 }

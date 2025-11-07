@@ -4,13 +4,16 @@ import "./index.css";
 import App from "./App.jsx";
 import { UserProvider } from "./contexts/UserContext.jsx";
 import { AsCollegeProvider } from "./contexts/AsCollegeContext.jsx";
+import { StudentSubjectProvider } from "./contexts/AsStudentContext.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <UserProvider>
-      <AsCollegeProvider>
-        <App />
-      </AsCollegeProvider>
+      <StudentSubjectProvider>
+        <AsCollegeProvider>
+          <App />
+        </AsCollegeProvider>
+      </StudentSubjectProvider>
     </UserProvider>
   </StrictMode>
 );

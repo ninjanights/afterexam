@@ -5,6 +5,7 @@ import cors from "cors";
 
 import regesterCollegeRoutes from "./routes/registerCollege.js";
 import loginUserRoute from "./routes/loginUserOrCollege.js";
+import studentRouter from "./routes/registerStudentSubjects.js";
 
 dotenv.config();
 
@@ -28,6 +29,7 @@ mongoose
 
 app.use("/api", loginUserRoute);
 app.use("/api/college", regesterCollegeRoutes);
+app.use("/api/student", studentRouter);
 
 const PORT = process.env.PORT || 9000;
 app.listen(PORT, () => console.log(`Server Live at ${PORT}.`));

@@ -3,7 +3,18 @@ import React, { useEffect, useState } from "react";
 import { useAsCollegeContext } from "../contexts/AsCollegeContext.jsx";
 import StudentQueryForm from "./StudentQueryForm.jsx";
 
+import { useStudentSubject } from "../contexts/AsStudentContext.jsx";
+
 function StudentHome() {
+  const {
+    subjectStack,
+    stackGrand,
+    loading,
+    error,
+    fetchSubjectStack,
+    addSubjectStack,
+  } = useStudentSubject();
+
   const { allColleges, fetchAllColleges } = useAsCollegeContext();
   const [studentQ, setStudentQ] = useState(false);
 

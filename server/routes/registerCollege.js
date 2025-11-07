@@ -19,7 +19,4 @@ router.get("/nameavailable/:collegename", collegeNameAvailability);
 // get if FieldName already exists under college name.
 router.post("/checkfieldname/:fieldname", checkFieldName);
 
-// get all colleges
-// router.get("/allcolleges/:username", getCollegesByUsername);
-
 export default router;

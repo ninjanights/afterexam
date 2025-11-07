@@ -23,7 +23,13 @@ export const UserProvider = ({ children }) => {
       setLoggedInUser(res);
       console.log(res);
 
-      localStorage.setItem("user", JSON.stringify(res));
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          username: res?.data?.username,
+          role: res?.data?.role,
+        })
+      );
     }
     return res;
   };

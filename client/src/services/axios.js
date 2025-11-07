@@ -8,3 +8,7 @@ export const regesterCollegeSideApi = axios.create({
 export const loginOrBaseApi = axios.create({
   baseURL: `${API_BASE}`,
 });
+
+export const regesterStudentSideApi = axios.create({
+  baseURL: `${API_BASE}/student`,
+});
