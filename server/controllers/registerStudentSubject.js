@@ -102,3 +102,71 @@ export const getStudentsSubjectStack = async (req, res) => {
     });
   }
 };
+
+// delete 1 subject from stack.
+export const deleteSubjectFromStack = async (req, res) => {
+  try {
+    const { username, subjectName } = req.body;
+
+    console.log(username, subjectName, "🌾🌾");
+    if (!username || !subjectName) {
+      return res.status(400).json({
+        success: false,
+        message: "No username of subject provided",
+      });
+    }
+
+    const user = await User.findOne({ username: username });
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: "No user found.",
+      });
+    }
+
+    const innitialLength = user.subjectStack?.length;
+
+    user.subjectStack = user.subjectStack.filter((sub) => {
+      return sub.subject !== subjectName;
+    });
+
+    if (innitialLength === user.subjectStack.length) {
+      return res.status(400).json({
+        success: false,
+        message: "No subject found in db.",
+      });
+    }
+
+    const gradeValue = {
+      "A+": 90,
+      A: 85,
+      "B+": 80,
+      B: 75,
+      "C+": 70,
+      C: 65,
+      D: 60,
+    };
+
+    // recalculate stackGrand.
+    const total = user.subjectStack.reduce((acc, val) => {
+      const value = gradeValue[val.grade] || 0;
+      return acc + value;
+    }, 0);
+
+    user.stackGrand = Number(total);
+
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "You've deleted the subject successfully.",
+      data: { subjectStack: user?.subjectStack, stackGrand: user?.stackGrand },
+    });
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({
+      success: false,
+      message: "Server error in deleting subject from stack.",
+    });
+  }
+};

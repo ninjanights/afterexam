@@ -92,3 +92,49 @@ export const setStudentSubjectStackH = async (newSubject, newGrade) => {
     };
   }
 };
+
+// delete a subject.
+export const deleteSubjectH = async (subjectName) => {
+  try {
+    if (!subjectName) {
+      return { success: false, message: "No subject for deletation" };
+    }
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (!user) {
+      return {
+        success: false,
+        message: "No Logged in user",
+      };
+    }
+    const username = user?.username;
+
+    if (!username) {
+      return {
+        success: false,
+        message: "No logged in username found",
+      };
+    }
+
+    const res = await regesterStudentSideApi.delete("/deletesubject", {
+      data: {
+        username,
+        subjectName,
+      },
+    });
+
+    if (res?.data?.success) {
+      return {
+        success: true,
+        message: `Successfully removed the ${subjectName}.`,
+        data: res?.data?.data,
+      };
+    }
+  } catch (e) {
+    console.log("Error in deleting subject helper.");
+    return {
+      data: null,
+      success: false,
+      message: "Something went wrong in deleting subject in helper.",
+    };
+  }
+};

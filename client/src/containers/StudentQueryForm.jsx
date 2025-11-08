@@ -9,6 +9,7 @@ function StudentQueryForm() {
     error,
     fetchSubjectStack,
     addSubjectStack,
+    deleteSubject,
   } = useStudentSubject();
 
   const [subjectInput, setSubjectInput] = useState("");
@@ -68,14 +69,29 @@ function StudentQueryForm() {
     }
   };
 
+  // handle delete subject.
+  const handleDeleteSubject = async (e, subjectName) => {
+    e.preventDefault();
+    try {
+      await deleteSubject(subjectName);
+    } catch (e) {
+      console.error("Failed to delete subject:", e);
+    }
+  };
+
   return (
     <div>
       {Array.isArray(subjectStack) &&
         subjectStack?.length > 0 &&
         subjectStack?.map((s, i) => (
-          <p key={i}>
-            {s?.subject} - {s?.grade}
-          </p>
+          <div key={i}>
+            <p>
+              {s?.subject} - {s?.grade}
+            </p>
+            <button onClick={(e) => handleDeleteSubject(e, s?.subject)}>
+              x
+            </button>
+          </div>
         ))}
       {displayMessage && <p style={{ color: "red" }}>{displayMessage}</p>}
       <form onSubmit={handleAddToSubjectStack}>

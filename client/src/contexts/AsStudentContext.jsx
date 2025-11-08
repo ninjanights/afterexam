@@ -6,6 +6,7 @@ import {
   useState,
 } from "react";
 import {
+  deleteSubjectH,
   getStudentSubjectStackH,
   setStudentSubjectStackH,
 } from "../services/registerStudentSubjects";
@@ -55,6 +56,24 @@ export const StudentSubjectProvider = ({ children }) => {
     return res;
   };
 
+  // delete subject from stack.
+  const deleteSubject = async (subjectName) => {
+    setLoading(true);
+    setError(null);
+
+    if (!subjectName) return;
+
+    const res = await deleteSubjectH(subjectName);
+    if (res.success) {
+      setSubjectStack(res?.data?.subjectStack);
+      setStackGrand(res?.data?.stackGrand);
+    } else {
+      setError(res?.message || "Failed to delete subject from stack.");
+    }
+    setLoading(false);
+    return res;
+  };
+
   return (
     <SubjectContext.Provider
       value={{
@@ -64,6 +83,7 @@ export const StudentSubjectProvider = ({ children }) => {
         error,
         fetchSubjectStack,
         addSubjectStack,
+        deleteSubject,
       }}
     >
       {children}
