@@ -12,3 +12,7 @@ export const loginOrBaseApi = axios.create({
 export const regesterStudentSideApi = axios.create({
   baseURL: `${API_BASE}/student`,
 });
+
+export const interestsApi = axios.create({
+  baseURL: `${API_BASE}/interests`,
+});

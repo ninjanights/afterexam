@@ -14,7 +14,6 @@ export const regesterCollegeH = async (collegeName, location, fields) => {
       });
     const username = user?.data?.username;
 
-    console.log(collegeName);
     const response = await regesterCollegeSideApi.post(
       `/registercollege/${username}`,
       {
@@ -24,7 +23,7 @@ export const regesterCollegeH = async (collegeName, location, fields) => {
       }
     );
 
-    if (response.success) {
+    if (response.data.success) {
       return response.data;
     }
   } catch (e) {

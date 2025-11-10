@@ -10,6 +10,7 @@ import {
   getStudentSubjectStackH,
   setStudentSubjectStackH,
 } from "../services/registerStudentSubjects";
+import { getInterestsFieldsH } from "../services/interests";
 
 const SubjectContext = createContext();
 
@@ -19,6 +20,8 @@ export const StudentSubjectProvider = ({ children }) => {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  const [topicValues, setTopicValues] = useState(null);
 
   useEffect(() => {
     fetchSubjectStack();
@@ -74,6 +77,19 @@ export const StudentSubjectProvider = ({ children }) => {
     return res;
   };
 
+  // fetch topics under interests.
+  const fetchInterests = async (topicname) => {
+    setLoading(true);
+    setError(null);
+
+    if (!topicname) return;
+    const res = await getInterestsFieldsH(topicname);
+    console.log(res, "jjj");
+    if (res.success) {
+      setTopicValues(res?.data);
+    }
+  };
+
   return (
     <SubjectContext.Provider
       value={{
@@ -84,6 +100,9 @@ export const StudentSubjectProvider = ({ children }) => {
         fetchSubjectStack,
         addSubjectStack,
         deleteSubject,
+
+        fetchInterests,
+        topicValues,
       }}
     >
       {children}
