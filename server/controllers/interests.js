@@ -2,16 +2,7 @@ import StudentInterests from "../models/interests.js";
 import User from "../models/user.js";
 
 const defaultTopics = {
-  music: [
-    "Indie music",
-    "Classical music",
-    "Hip-hop / Rap",
-    "Pop music",
-    "Instrumental / Lo-fi",
-    "Folk / Regional music",
-    "Rock / Metal",
-    "Film soundtracks / scores",
-  ],
+  music: ["Pop", "Classical", "Rap", "Rock", "Indie"],
   dance: [
     "Hip-hop dance",
     "Classical dance",
@@ -57,7 +48,7 @@ export const getTopicsUnderInterests = async (req, res) => {
 
     const topicsWithRatings = topics.map((t) => ({
       topic: t,
-      rating: 0,
+      rating: 3,
     }));
 
     return res.status(200).json({
