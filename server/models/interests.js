@@ -12,8 +12,8 @@ const studentInterestsSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    music: [interestsSchema],
-    dance: [interestsSchema],
+    music: { type: [interestsSchema], required: false },
+    dance: { type: [interestsSchema], required: false },
   },
   { timestamps: true }
 );

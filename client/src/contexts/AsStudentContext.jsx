@@ -10,7 +10,7 @@ import {
   getStudentSubjectStackH,
   setStudentSubjectStackH,
 } from "../services/registerStudentSubjects";
-import { getInterestsFieldsH } from "../services/interests";
+import { getInterestsFieldsH, postTopicValuesH } from "../services/interests";
 
 const SubjectContext = createContext();
 
@@ -22,6 +22,7 @@ export const StudentSubjectProvider = ({ children }) => {
   const [error, setError] = useState(null);
 
   const [topicValues, setTopicValues] = useState(null);
+  const [topicName, setTopicName] = useState("");
 
   useEffect(() => {
     fetchSubjectStack();
@@ -87,7 +88,14 @@ export const StudentSubjectProvider = ({ children }) => {
     console.log(res, "jjj");
     if (res.success) {
       setTopicValues(res?.data);
+      setTopicName(res.topicName);
     }
+  };
+
+  // set topic values.
+  const setTopicValuesC = async (localTopics, topicName) => {
+    const res = await postTopicValuesH(localTopics, topicName);
+    return res;
   };
 
   return (
@@ -103,6 +111,9 @@ export const StudentSubjectProvider = ({ children }) => {
 
         fetchInterests,
         topicValues,
+        topicName,
+
+        setTopicValuesC,
       }}
     >
       {children}

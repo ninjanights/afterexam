@@ -6,7 +6,6 @@ body {
   width: fit-content;
   height: 200px;
   display: flex;
-  flex-direction: column;
 }
 .interestContainer {
   padding: 18px;
@@ -16,6 +15,11 @@ body {
   display: flex;
   height: fit-content;
   padding-bottom: 28px;
+  flex-direction: column;
+}
+.graphBox {
+  display: flex;
+  gap: 12px;
 }
 .ratingBarWrapper {
   gap: 4px;
@@ -60,10 +64,13 @@ body {
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
+  text-align: center;
+  word-wrap: normal;
 }
 .topicName {
   margin: 0;
   font-size: 10px;
+  font-weight: bold;
 }
 .ratingVal {
   position: absolute;
@@ -88,7 +95,7 @@ body {
   cursor: pointer;
   border: none;
   outline: none;
-  padding-block:4px ;
+  padding-block: 4px;
   color: black;
   font-size: 10px;
 }
@@ -96,4 +103,3 @@ body {
 .downBtn:focus {
   outline: none;
 }
-
